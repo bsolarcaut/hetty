@@ -1,35 +1,68 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"flag"
-	llog "log"
+	"fmt"
+	"log"
 	"os"
-
-	"go.uber.org/zap"
-
-	"github.com/dstotijn/hetty/pkg/log"
 )
 
+const (
+	// defaultAddr is the default address the HTTP proxy and admin interface listen on.
+	defaultAddr = ":8080"
+	// defaultAdminPath is the default path prefix for the admin interface.
+	defaultAdminPath = "/hetty/"
+)
+
+// version is set at build time via ldflags.
+var version = "dev"
+
 func main() {
-	hettyCmd, cfg := NewHettyCommand()
+	// Parse command-line flags.
+	addr := flag.String("addr", defaultAddr, "Address to listen on (e.g. \"127.0.0.1:8080\")")
+	adminPath := flag.String("adminPath", defaultAdminPath, "Path prefix for the admin interface")
+	dbPath := flag.String("db", "", "Path to the database file (default: in-memory)")
+	certFile := flag.String("cert", "", "Path to the CA certificate file (PEM format)")
+	keyFile := flag.String("key", "", "Path to the CA private key file (PEM format)")
+	printVersion := flag.Bool("version", false, "Print version and exit")
 
-	if err := hettyCmd.Parse(os.Args[1:]); err != nil {
-		llog.Fatalf("Failed to parse command line arguments: %v", err)
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: hetty [options]\n\nOptions:\n")
+		flag.PrintDefaults()
+		fmt.Fprintln(os.Stderr, "\nHetty is an HTTP toolkit for security research.")
 	}
 
-	logger, err := log.NewZapLogger(cfg.verbose, cfg.jsonLogs)
-	if err != nil {
-		llog.Fatal(err)
-	}
-	//nolint:errcheck
-	defer logger.Sync()
+	flag.Parse()
 
-	cfg.logger = logger
-
-	err = hettyCmd.Run(context.Background())
-	if err != nil && !errors.Is(err, flag.ErrHelp) {
-		logger.Fatal("Command failed.", zap.Error(err))
+	if *printVersion {
+		fmt.Printf("hetty %s\n", version)
+		os.Exit(0)
 	}
+
+	log.Printf("[INFO] Starting hetty %s", version)
+	log.Printf("[INFO] Listening on %s", *addr)
+
+	// Log configuration details.
+	if *dbPath != "" {
+		log.Printf("[INFO] Using database at: %s", *dbPath)
+	} else {
+		log.Printf("[INFO] Using in-memory database")
+	}
+
+	if *certFile != "" && *keyFile != "" {
+		log.Printf("[INFO] Using CA certificate: %s", *certFile)
+	} else {
+		log.Printf("[INFO] No CA certificate provided; HTTPS interception will use auto-generated certs")
+	}
+
+	log.Printf("[INFO] Admin interface available at http://%s%s", *addr, *adminPath)
+
+	// TODO: Initialize proxy, admin interface, and database.
+	// This will be wired up as additional packages are implemented.
+	_ = adminPath
+	_ = dbPath
+	_ = certFile
+	_ = keyFile
+
+	log.Fatal("[ERROR] Server not yet implemented")
 }
