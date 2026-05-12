@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	defaultReadTimeout  = 30 * time.Second
-	defaultWriteTimeout = 30 * time.Second
-	defaultIdleTimeout  = 120 * time.Second
+	defaultReadTimeout  = 60 * time.Second
+	defaultWriteTimeout = 60 * time.Second
+	defaultIdleTimeout  = 180 * time.Second
 )
 
 // Server represents the Hetty HTTP API server.
