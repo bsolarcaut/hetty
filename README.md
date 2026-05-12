@@ -61,6 +61,16 @@ TLS traffic, you need to install the CA certificate in your browser or OS.
 
 The CA certificate is stored at `$HOME/.hetty/hetty_cert.pem` by default.
 
+#### macOS
+
+To trust the certificate on macOS, run:
+
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain $HOME/.hetty/hetty_cert.pem
+```
+
+After adding it, you may need to restart your browser for the changes to take effect.
+
 ## Development
 
 ### Backend
