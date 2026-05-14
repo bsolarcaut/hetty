@@ -13,6 +13,9 @@ const (
 	defaultAddr = "127.0.0.1:8080"
 	// defaultAdminPath is the default path prefix for the admin interface.
 	defaultAdminPath = "/hetty/"
+	// defaultDbPath is the default path for the database file.
+	// Using a local file by default instead of in-memory so sessions persist between restarts.
+	defaultDbPath = "hetty.db"
 )
 
 // version is set at build time via ldflags.
@@ -22,7 +25,7 @@ func main() {
 	// Parse command-line flags.
 	addr := flag.String("addr", defaultAddr, "Address to listen on (e.g. \"127.0.0.1:8080\")")
 	adminPath := flag.String("adminPath", defaultAdminPath, "Path prefix for the admin interface")
-	dbPath := flag.String("db", "", "Path to the database file (default: in-memory)")
+	dbPath := flag.String("db", defaultDbPath, "Path to the database file (default: hetty.db)")
 	certFile := flag.String("cert", "", "Path to the CA certificate file (PEM format)")
 	keyFile := flag.String("key", "", "Path to the CA private key file (PEM format)")
 	printVersion := flag.Bool("version", false, "Print version and exit")
